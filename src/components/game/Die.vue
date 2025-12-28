@@ -52,7 +52,8 @@ function onClick() {
         'is-kept': die.isKept && !hideKeptVisuals,
         'has-token': die.hasToken,
         'is-locked': die.isLocked,
-        'is-resolved': die.isResolved
+        'is-resolved': die.isResolved,
+        'is-temporary': die.isTemporary
       }"
       @click="onClick"
   >
@@ -166,5 +167,16 @@ function onClick() {
 @keyframes popIn {
   from { transform: scale(0); }
   to { transform: scale(1); }
+}
+
+.is-temporary {
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
+  border-color: #ffd700 !important;
+  animation: spectralPulse 2s infinite alternate;
+}
+
+@keyframes spectralPulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.3) drop-shadow(0 0 5px gold); }
 }
 </style>

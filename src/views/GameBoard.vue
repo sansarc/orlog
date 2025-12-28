@@ -11,15 +11,19 @@ import { useCombatAnimation } from "../composables/useCombatAnimation.ts";
 import type { IDie } from "../core/interfaces.ts";
 import CoinToss from "../components/game/CoinToss.vue";
 import { Game } from "../core/Game.ts";
-import type {FavorTargetType, IGodFavor} from "../core/favors/IGodFavor.ts";
+import type {FavorPriority, FavorTargetType, IGodFavor} from "../core/favors/IGodFavor.ts";
 import GodSelection from "../components/game/GodSelection.vue";
 import {audioManager} from "../core/audio/AudioManager.ts";
 import DiceSelector from "../components/game/DiceSelector.vue";
+import HealthSelector from "../components/game/HealthSelector.vue";
+import GameRules from "../components/game/GameRules.vue";
+import GameOver from "../components/game/GameOver.vue";
 
 const { game, player1, player2, currentPlayer, rollDice, canRoll, confirmTurn, phaseName, isRollPhase, getPlayerRolls } = useGame();
 const { animateTokens } = useTokenAnimation();
 const { animateAttack } = useCombatAnimation();
 
+const showRules = ref(false);
 const isMuted = ref(audioManager.isMuted);
 const volumeLevel = ref(audioManager.volume * 100); // 0 - 100 for the slider
 
@@ -36,6 +40,7 @@ const p2TotemsRef = ref<InstanceType<typeof GodTotems> | null>(null);
 const isRolling = ref(false);
 const isFavorPhase = computed(() => phaseName.value === 'FAVOR');
 const isResolving = ref(false);
+const winnerName = ref('');
 
 const hasGameStarted = ref(false);
 const showCoin = ref(false);
@@ -46,9 +51,10 @@ const p2NameInput = ref('');
 const showDiceSelector = ref(false);
 const activeSelectorFavor = ref<IGodFavor | null>(null);
 const activeSelectorCaster = ref<any>(null);
+const showHealthSelector = ref(false);
 
 // FLOW STATE
-const setupStage = ref<'SETUP' | 'P1_SELECT' | 'P2_SELECT' | 'COIN' | 'PLAYING'>('SETUP');
+const setupStage = ref<'SETUP' | 'P1_SELECT' | 'P2_SELECT' | 'COIN' | 'PLAYING' | 'GAME_OVER'>('SETUP');
 const isOverlayActive = computed(() => ['P1_SELECT', 'P2_SELECT', 'COIN'].includes(setupStage.value));
 
 function toggleMute() {
@@ -63,7 +69,7 @@ function onVolumeChange() {
 }
 
 onMounted(() => {
-  audioManager.playBGM("bgm") // background music
+  audioManager.playBGM() // background music
 });
 
 async function startGame() {
@@ -79,6 +85,8 @@ async function startGame() {
 }
 
 function handleGodConfirmation(favors: IGodFavor[]) {
+  console.log(`[Setup] ${setupStage.value} confirmed with`, favors.map(f => f.name));
+
   if (setupStage.value === 'P1_SELECT') {
     player1.value.favors = favors;
     setupStage.value = 'P2_SELECT';
@@ -147,6 +155,8 @@ async function runResolutionSequence() {
   const resolution = game.phase as ResolutionPhase;
   const visuallyConsumed = new Map<IDie, number>();
 
+  console.log('[Resolution] Starting sequence');
+
   // 1. Tokens (Parallel Animation)
   const p1Promise = new Promise<void>(resolve => {
     const tokens = p1TrayRef.value?.getDiceElementsWithTokens() || [];
@@ -163,22 +173,33 @@ async function runResolutionSequence() {
   await Promise.all([p1Promise, p2Promise]);
 
   resolution.resolveTokenGains();
+  console.log('[Resolution] Token gains resolved');
   await wait(1000);
 
   // 2. Pre-Combat Favors
+  await resolveFavorsByPriority('IMMEDIATE')
   await resolveFavorsByPriority('PRE_COMBAT')
 
+  const p1Count = player1.value.dice.length;
+  const p2Count = player2.value.dice.length;
+  const maxDice = Math.max(p1Count, p2Count, 6);
+
   // 3. Combat
-  for (let i = 0; i < 6; i++)
+  for (let i = 0; i < maxDice; i++)
     await handleCombatStep(i, resolution, visuallyConsumed);
+
+  if (checkWinCondition()) return;
 
   // 4. Post-Combat Favors
   await resolveFavorsByPriority('POST_COMBAT');
+  console.log('[Resolution] Combat complete');
 
-  resolution.finishResolution();
+  if (checkWinCondition()) return;
+
+  resolution.endPhase();
 }
 
-async function resolveFavorsByPriority(priority: 'PRE_COMBAT' | 'POST_COMBAT') {
+async function resolveFavorsByPriority(priority: FavorPriority) {
   const resolution = game.phase as ResolutionPhase;
   const first = game.firstPlayer;
   const second = game.getOtherPlayer(first);
@@ -187,38 +208,114 @@ async function resolveFavorsByPriority(priority: 'PRE_COMBAT' | 'POST_COMBAT') {
   await handleSingleFavor(second, first, resolution, priority);
 }
 
-async function handleSingleFavor(caster: any, opponent: any, resolution: ResolutionPhase, priority: 'PRE_COMBAT' | 'POST_COMBAT') {
+async function handleSingleFavor(
+    caster: any,
+    opponent: any,
+    resolution: ResolutionPhase,
+    priority: FavorPriority
+) {
   const selection = caster.selectedFavor;
   if (!selection || selection.favor.priority !== priority) return;
 
   const { favor, level } = selection;
 
+  // 1. Capture state BEFORE execution
+  const prevCount = caster.dice.length;
+
+  // 2. Cost Check
   if (caster.tokens < favor.getCost(level)) {
     await wait(1000);
+    // Resolve anyway to clear the selection/state
     resolution.resolvePlayerFavor(caster, opponent, priority);
     return;
   }
 
-  const isP1 = (caster === player1.value);
-  const totemsComponent = isP1 ? p1TotemsRef.value : p2TotemsRef.value;
+  // 3. Execution Paths
+  if (favor.targetType && favor.targetType !== 'NONE') {
 
-  if (favor.targetType) {
     activeSelectorFavor.value = favor;
     activeSelectorCaster.value = caster;
-    showDiceSelector.value = true;
 
+    // HEALTH INTERACTION
+    if (favor.targetType === 'SELF_HEALTH') {
+      showHealthSelector.value = true;
+    }
+    // DICE INTERACTION
+    else {
+      showDiceSelector.value = true;
+    }
+
+    // Pause here until ANY modal emits confirm/cancel
     await waitForModalSelection();
 
+    // Cleanup
     showDiceSelector.value = false;
+    showHealthSelector.value = false;
     activeSelectorFavor.value = null;
+    activeSelectorCaster.value = null;
   }
   else {
-    // non-interactive favor
-    await playFavorAnimation(caster, favor);
+    // NON-INTERACTIVE PATH
+    const isP1 = (caster === player1.value);
+    const totemsComponent = isP1 ? p1TotemsRef.value : p2TotemsRef.value;
+
+    if (totemsComponent) {
+      await totemsComponent.playActivation(favor.name);
+    }
+
     resolution.resolvePlayerFavor(caster, opponent, priority);
   }
 
-  await wait(800);
+  // 4. POST-EXECUTION
+  // This runs regardless of which path was taken
+  const newCount = caster.dice.length;
+
+  if (newCount > prevCount) {
+    const addedCount = newCount - prevCount;
+    const newIndices: number[] = [];
+
+    // Calculate indices of the new dice (e.g., 6, 7)
+    for (let i = 0; i < addedCount; i++) {
+      newIndices.push(prevCount + i);
+    }
+
+    // Trigger Roll Animation on Tray
+    const tray = (caster === player1.value) ? p1TrayRef.value : p2TrayRef.value;
+    if (tray) {
+      // Forcing a Vue update before animating
+      await nextTick();
+      tray.playRollAnimation(newIndices);
+      await wait(800); // Waiting for roll to finish
+    }
+  }
+
+  await wait(500); // Small pause before next step
+}
+
+// HEALTH CALLBACK
+async function onHealthConfirm(amount: number) {
+  showHealthSelector.value = false;
+
+  if (!activeSelectorFavor.value || !activeSelectorCaster.value) return;
+
+  const favor = activeSelectorFavor.value;
+  const caster = activeSelectorCaster.value;
+  const opponent = game.getOtherPlayer(caster);
+  const resolution = game.phase as ResolutionPhase;
+
+  // Animation
+  await playFavorAnimation(caster, favor);
+
+  // Backend Execution
+  resolution.resolvePlayerFavor(caster, opponent, favor.priority, amount);
+
+  // Resume
+  if (modalResolver) modalResolver(true);
+}
+
+function onHealthCancel() {
+  showHealthSelector.value = false;
+  if (modalResolver) modalResolver(false);
 }
 
 let modalResolver: ((value: unknown) => void) | null = null
@@ -302,16 +399,16 @@ async function handleCombatStep(index: number, resolution: ResolutionPhase, cons
   const p1Die = player1.value.dice[index];
   const p2Die = player2.value.dice[index];
 
-  if (p1Die && p2Die) {
-    const activeFaces = ['AXE', 'ARROW', 'HAND'];
+  if (p1Die || p2Die) {
+    const activeFaces = new Set(['AXE', 'ARROW', 'HAND']);
     let didAnimate = false;
 
-    if (!p1Die.isResolved && activeFaces.includes(p1Die.face)) {
+    if (p1Die && !p1Die.isResolved && activeFaces.has(p1Die.face)) {
       await resolveSingleDieAnimation(p1Die, player1.value, player2.value, p1TrayRef, p2TrayRef, p2MatRef, consumedDice);
       didAnimate = true;
     }
 
-    if (!p2Die.isResolved && activeFaces.includes(p2Die.face)) {
+    if (p2Die && !p2Die.isResolved && activeFaces.has(p2Die.face)) {
       await resolveSingleDieAnimation(p2Die, player2.value, player1.value, p2TrayRef, p1TrayRef, p1MatRef, consumedDice);
       didAnimate = true;
     }
@@ -333,7 +430,10 @@ async function resolveSingleDieAnimation(
   if (!attackerTray.value) return;
 
   const dieEl = attackerTray.value.getDiceElement(attackerDie);
-  if (!dieEl) return;
+  if (!dieEl) {
+    console.warn('[Combat] Die element not found for animation');
+    return;
+  }
 
   let targetEl: HTMLElement | null = null;
   let isBlocked = false;
@@ -377,6 +477,44 @@ async function resolveSingleDieAnimation(
   if (targetEl)
     await animateAttack(dieEl, targetEl, isBlocked, attackerDie);
 
+  console.log(`[Combat] ${attackerDie.face} attack, blocked: ${isBlocked}`);
+}
+
+function checkWinCondition(): boolean {
+  console.log(`[Health] P1: ${player1.value.health}, P2: ${player2.value.health}`);
+
+  const p1Dead = player1.value.health <= 0;
+  const p2Dead = player2.value.health <= 0;
+
+  if (p1Dead || p2Dead) {
+    console.log(`[Game] Winner: ${winnerName.value}`);
+
+
+    if (p1Dead && p2Dead)
+      winnerName.value = "Draw";
+    else if (p1Dead)
+      winnerName.value = player2.value.name;
+    else
+      winnerName.value = player1.value.name;
+
+
+    // TRIGGER GAME OVER
+    setupStage.value = 'GAME_OVER';
+
+    audioManager.stopBGM();
+    audioManager.playSFX('game-end');
+
+    return true;
+  }
+
+  return false;
+}
+
+function handleRestart() {
+  game.resetGame();
+  winnerName.value = '';
+  setupStage.value = 'P1_SELECT';
+  audioManager.playBGM();
 }
 
 function wait(ms: number) {
@@ -386,6 +524,12 @@ function wait(ms: number) {
 
 <template>
   <div class="view-container">
+
+    <GameRules v-if="showRules" @close="showRules = false" />
+
+    <button class="help-fab" @click="showRules = true" title="Game Rules">
+      ?
+    </button>
 
     <div class="audio-controls">
       <button class="mute-btn" @click="toggleMute" :title="isMuted ? 'Unmute' : 'Mute'">
@@ -408,6 +552,13 @@ function wait(ms: number) {
         :selection-limit="activeSelectorFavor.getSelectionLimit?.(activeSelectorCaster.selectedFavor.level) as number"
         @confirm="onSelectorConfirm"
         @cancel="onSelectorCancel"
+    />
+
+    <HealthSelector
+        v-if="showHealthSelector && activeSelectorCaster"
+        :player="activeSelectorCaster"
+        @confirm="onHealthConfirm"
+        @cancel="onHealthCancel"
     />
 
     <div class="background-layer">
@@ -440,7 +591,11 @@ function wait(ms: number) {
       />
     </div>
 
-    <div class="game-layout" :class="{ 'layout-blurred': isOverlayActive }">
+    <div class="overlay-layer" v-if="setupStage === 'GAME_OVER'">
+      <GameOver :winner-name="winnerName" @restart="handleRestart"/>
+    </div>
+
+    <div class="game-layout" :class="{ 'layout-blurred': isOverlayActive || setupStage === 'GAME_OVER' }">
 
       <div class="battlefield" :class="{ 'blurred': setupStage === 'SETUP' }">
 
@@ -531,6 +686,8 @@ function wait(ms: number) {
 
     </div>
 
+
+
   </div>
 </template>
 
@@ -545,7 +702,39 @@ function wait(ms: number) {
   color: white;
 }
 
-/* --- AUDIO CONTROLS --- */
+/* --- AUDIO CONTROLS AND HELP SECTION --- */
+.help-fab {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 9999;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(11, 16, 22, 0.9);
+  border: 2px solid #deb887;
+  color: #deb887;
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+}
+
+.help-fab:hover {
+  transform: scale(1.1) rotate(10deg);
+  background: #deb887;
+  color: #0b1016;
+  box-shadow: 0 0 20px rgba(222, 184, 135, 0.4);
+}
+
 .audio-controls {
   position: absolute;
   top: 1rem;
@@ -553,13 +742,24 @@ function wait(ms: number) {
   z-index: 9999;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.5rem;
   background: rgba(0, 0, 0, 0.6);
-  padding: 0.5rem 1rem;
-  border-radius: 30px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   transition: opacity 0.3s;
+}
+
+.mute-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  filter: grayscale(1);
+  transition: filter 0.2s;
 }
 
 .audio-controls:hover {
@@ -567,16 +767,6 @@ function wait(ms: number) {
   border-color: #deb887;
 }
 
-.mute-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  filter: grayscale(1);
-  transition: filter 0.2s;
-}
 .mute-btn:hover {
   filter: grayscale(0);
 }
@@ -595,7 +785,7 @@ function wait(ms: number) {
   -webkit-appearance: none;
   width: 12px;
   height: 12px;
-  background: #deb887; /* Gold */
+  background: #deb887;
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.1s;
@@ -659,6 +849,7 @@ function wait(ms: number) {
   gap: 2rem;
   box-shadow: -10px 0 30px rgba(0,0,0,0.5);
   z-index: 20;
+  pointer-events: auto;
 }
 
 /* --- SETUP MENU --- */
@@ -718,10 +909,9 @@ function wait(ms: number) {
   justify-content: space-between;
   padding: 2rem;
   height: 100%;
-  transition: filter 0.5s ease; /* Ensure smooth blur transition */
+  transition: filter 0.5s ease;
 }
 
-/* THE MISSING BLUR EFFECT */
 .battlefield.blurred {
   filter: blur(4px) grayscale(0.6);
   pointer-events: none;

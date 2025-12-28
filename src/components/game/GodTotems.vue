@@ -3,7 +3,6 @@ import type {IGodFavor} from "../../core/favors/IGodFavor.ts";
 import type { IPlayer } from "../../core/interfaces.ts";
 import {useFavorAnimation} from "../../composables/useFavorAnimation.ts";
 import {ref} from "vue";
-import {audioManager} from "../../core/audio/AudioManager.ts";
 
 defineProps<{
   player: IPlayer;
@@ -19,12 +18,8 @@ const setTotemRefs = (el: any, name: string) => {
 
 async function playActivation(favorName: string) {
   const el = totemRefs.value[favorName];
-  console.log(`GodTotems: Activating '${favorName}'`, el ? "Element Found" : "ELEMENT NOT FOUND");
-  if (el)
-    await animateFavorAction(el);
+  if (el) await animateFavorAction(el);
 
-  if (favorName === "Thor's Strike")
-    audioManager.playSFX('thors-strike');
 }
 
 defineExpose({ playActivation });
@@ -47,11 +42,6 @@ function getTooltip(favor: IGodFavor) {
         <img :src="favor.totemImgPath"
              alt="{{ favor.name }} totem"
              class="god-figure"
-             @error="($event: Event) => {
-               const target = $event.target as HTMLImageElement;
-               if (target)
-                 target.src = '/icons/placeholder_god.png';
-             }"
         />
       </div>
 
@@ -104,7 +94,7 @@ function getTooltip(favor: IGodFavor) {
   z-index: 0;
   pointer-events: none;
   mix-blend-mode: screen;
-  filter: blur(5px); /* Soften edges */
+  filter: blur(5px);
 }
 
 .totem-inner {
@@ -153,7 +143,7 @@ function getTooltip(favor: IGodFavor) {
 }
 
 .tooltip-title {
-  color: #deb887; /* Gold */
+  color: #deb887;
   font-family: 'Cinzel', serif;
   font-size: 0.95rem;
   font-weight: bold;

@@ -125,52 +125,132 @@ const isReady = computed(() => selectedGods.value.length === 3);
 }
 
 .selection-container {
-  width: 90%; max-width: 900px;
+  width: 90vw;
+  height: 85vh;
+  max-width: 1600px;
+  max-height: 1000px;
+
   background: #111;
   border: 1px solid #deb887;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-  display: flex; flex-direction: column; gap: 1.5rem
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
 }
 
-.header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+/* HEADER: Don't let it shrink */
+.header {
+  text-align: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+  flex-shrink: 0;
+}
 .header h2 { color: #deb887; font-family: 'Cinzel', serif; margin: 0; font-size: 2.5rem; }
 .header p { color: #888; margin: 0.5rem 0 0 0; }
 
 .content-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
-  min-height: 400px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+
+  flex: 1;        /* Take up all remaining vertical space */
+  min-height: 0;
 }
 
-/* POOL SECTION */
-.pool-section h3 { color: #ccc; text-align: center; margin-top: 0; }
+/* --- LEFT: POOL SECTION --- */
+.pool-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;    /* Fill the grid cell */
+  min-height: 0;
+}
+
+.pool-section h3 {
+  color: #ccc;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
 .gods-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 1rem; padding: 1rem;
-  background: rgba(255,255,255,0.03); border-radius: 8px;
-  height: 350px; overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Increased from 160px */
+  grid-auto-rows: max-content;
+  gap: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 1rem;
 }
 
 .god-card {
-  background: #222; border: 1px solid #444; border-radius: 6px;
-  padding: 0.5rem; cursor: pointer; text-align: center;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 1rem;
+  cursor: pointer;
+  text-align: center;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
-.god-card:hover { border-color: #deb887; transform: translateY(-2px); }
-.god-card.selected { border-color: #ffd700; background: #3d2f20; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
-.god-card.disabled { opacity: 0.3; cursor: not-allowed; }
+.god-icon {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+}
+.god-card:hover { border-color: #deb887; transform: translateY(-3px); background: #2a2a2a; }
+.god-card.selected { border-color: #ffd700; background: #3d2f20; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+.god-card.disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
 
-.god-icon { width: 40px; height: 40px; object-fit: contain; margin-bottom: 5px; }
-.god-name { font-size: 0.7rem; color: #ccc; }
+.god-name { font-size: 0.9rem; color: #eee; font-weight: bold; font-family: 'Cinzel', serif; }
 
-/* INFO SECTION */
-.info-section { display: flex; flex-direction: column; gap: 1.5rem; }
 
-.slots-row { display: flex; justify-content: center; gap: 1rem; }
+/* --- RIGHT: INFO SECTION --- */
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.levels { display: flex; flex-direction: column; gap: 0.5rem; }
+.lvl-row { font-size: 0.9rem; line-height: 1.4; border-bottom: 1px solid #222; padding-bottom: 6px; }
+
+.lvl-row span {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.lvl-row .semi-colon {
+  color: #ccc;
+  font-weight: normal;
+  margin-right: 5px;
+}
+
+.token-icon {
+  color: #ffd700;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8); /* <--- The Glow Effect */
+}
+
+.slots-row { display: flex; justify-content: center; gap: 1rem; flex-shrink: 0; }
 .slot {
-  width: 70px; height: 70px;
+  width: 80px; height: 80px;
   border: 2px dashed #444; border-radius: 8px;
   display: flex; justify-content: center; align-items: center;
 }
@@ -178,26 +258,39 @@ const isReady = computed(() => selectedGods.value.length === 3);
   width: 100%; height: 100%; background: #222; border: 2px solid #deb887;
   border-radius: 8px; cursor: pointer;
   display: flex; justify-content: center; align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
-.slot-filled img { width: 50px; height: 50px; object-fit: contain; }
+.slot-filled img { width: 55px; height: 55px; object-fit: contain; }
 .slot-empty { color: #333; font-size: 1.5rem; font-weight: bold; }
 
 .description-box {
-  flex-grow: 1; background: #0b0f13; border: 1px solid #333; padding: 1rem;
-  border-radius: 6px; color: #ccc;
-}
-.placeholder-text { text-align: center; color: #555; padding-top: 2rem; font-style: italic; }
+  background: #0b0f13;
+  border: 1px solid #333;
+  padding: 1.5rem;
+  border-radius: 6px;
+  color: #ccc;
 
-.description-box h4 { color: #deb887; margin: 0 0 0.2rem 0; font-family: 'Cinzel', serif; }
-.priority-tag { font-size: 0.7rem; background: #333; display: inline-block; padding: 2px 6px; border-radius: 4px; color: #aaa; margin-bottom: 1rem; }
-.lvl-row { font-size: 0.85rem; margin-bottom: 0.5rem; line-height: 1.4; border-bottom: 1px solid #222; padding-bottom: 4px; }
-.lvl-row span { color: #ffd700; font-weight: bold; }
-.lvl-row .semi-colon { color: white; font-weight: normal; margin-right: 5px; }
-.token-icon { color: #ffd700; font-size: 0.85rem; font-weight: bold; }
+  /* SCROLLING BEHAVIOR */
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.description-box h4 { color: #deb887; margin: 0 0 0.5rem 0; font-family: 'Cinzel', serif; font-size: 1.3rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+.priority-tag { font-size: 0.75rem; background: #333; display: inline-block; padding: 3px 6px; border-radius: 4px; color: #aaa; margin-bottom: 1rem; text-transform: uppercase; }
 
 .confirm-btn {
-  padding: 1rem; background: #deb887; color: #000; font-weight: bold; font-family: 'Cinzel', serif;
-  border: none; cursor: pointer; font-size: 1.1rem;
+  padding: 1rem;
+  background: #deb887; color: #000; font-weight: bold; font-family: 'Cinzel', serif;
+  border: none; cursor: pointer; font-size: 1.2rem; letter-spacing: 2px;
+  flex-shrink: 0; /* Don't let it vanish */
 }
-.confirm-btn:disabled { background: #444; color: #777; cursor: not-allowed; }
+.confirm-btn:hover:not(:disabled) { background: #fff; box-shadow: 0 0 20px rgba(222, 184, 135, 0.4); }
+.confirm-btn:disabled { background: #333; color: #555; cursor: not-allowed; border: 1px solid #444; }
+
+/* SCROLLBAR STYLING (Viking Theme) */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #deb887; }
 </style>

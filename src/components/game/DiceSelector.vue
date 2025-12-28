@@ -6,7 +6,7 @@ const props = defineProps<{
   player: IPlayer;
   opponent: IPlayer;
   favorName: string;
-  targetType: 'OPPONENT_DICE' | 'OWN_DICE' | 'ANY_DICE';
+  targetType: 'OPPONENT_DICE' | 'OWN_DICE' | 'ANY_DICE' | 'SELF_HEALTH';
   selectionLimit: number;
 }>();
 
@@ -93,7 +93,6 @@ function confirm() {
 </template>
 
 <style scoped>
-/* Reuse existing styles, just updated layout */
 .modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
 .selector-modal { background: #151a21; border: 1px solid #deb887; padding: 1.5rem; border-radius: 12px; width: 600px; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 0 20px black; }
 .modal-header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }

@@ -14,14 +14,14 @@ export class AudioManager {
     }
 
     // BACKGROUND MUSIC
-    playBGM(filename: string) {
+    playBGM() {
         // stop previous
         if (this._bgm) {
             this._bgm.pause();
             this._bgm.currentTime = 0;
         }
 
-        this._bgm = new Audio('/audio/' + filename + '.mp3');
+        this._bgm = new Audio('/audio/bgm.mp3');
         this._bgm.loop = true;
         this._bgm.volume = this._isMuted ? 0 : this._volume;
 

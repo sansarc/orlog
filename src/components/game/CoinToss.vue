@@ -95,7 +95,7 @@ defineExpose({ spinCoin });
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  /* Start showing Player 1 */
+  /* start showing Player 1 */
   transform: rotateX(0deg);
   z-index: 9999;
 }
@@ -117,7 +117,7 @@ defineExpose({ spinCoin });
   font-family: 'Cinzel', serif;
   font-size: 4rem;
   font-weight: bold;
-  color: #5c4033; /* Dark Wood/Bronze text */
+  color: #5c4033;
   text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
 }
 

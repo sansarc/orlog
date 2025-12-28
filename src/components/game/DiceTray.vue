@@ -96,6 +96,7 @@ defineExpose({
 <style scoped>
 .dice-tray {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 2.7rem;
   background-color: #3d2107;
@@ -103,6 +104,7 @@ defineExpose({
   justify-content: center;
   min-height: 80px;
   transition: opacity 0.3s;
+  max-width: 600px;
 }
 
 .is-disabled {
