@@ -2,12 +2,13 @@ import {vi} from "vitest";
 import type {DieFace} from "../core/dice/DieFace.ts";
 import type {HitType, IDie} from "../core/interfaces.ts";
 
-export function createMockDie(face: DieFace | string, isResolved: boolean = false) {
+export function createMockDie(face: DieFace | string, isResolved: boolean = false, isTemporary: boolean = false) {
     return {
         face,
         isResolved: isResolved,
         isKept: false,
         isLocked: false,
+        isTemporary: isTemporary,
         hasToken: false,
         defenseHealth: 1,
         hitType: null as HitType,

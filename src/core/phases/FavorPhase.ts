@@ -13,8 +13,6 @@ export class FavorPhase implements IGamePhase {
     constructor(game: Game) {
         this._game = game;
         this._game.currentPlayer = this._game.firstPlayer;
-
-        console.log(`Favor Phase Started. First to pick: ${this._game.currentPlayer.name}`);
     }
 
     public handleFavorPick(favor: IGodFavor | null, level: 1 | 2 | 3): void {
@@ -26,11 +24,6 @@ export class FavorPhase implements IGamePhase {
        }
 
        this._game.currentPlayer.selectedFavor = favor ? { favor, level } : null;
-
-        if (favor)
-            console.log(`${this._game.currentPlayer.name} chose a favor.`);
-        else
-            console.log(`${this._game.currentPlayer.name} skipped favor.`);
 
         this.advanceTurn();
     }
@@ -47,7 +40,6 @@ export class FavorPhase implements IGamePhase {
         }
 
         this._game.currentPlayer = this._game.getOtherPlayer(this._game.currentPlayer);
-        console.log(`${this._game.currentPlayer.name}'s turn to choose.`);
     }
 
     endPhase(): void {

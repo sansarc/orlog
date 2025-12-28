@@ -18,7 +18,7 @@ export class HelsGrip implements IGodFavor {
 
     getDescription(level: number): string {
         if (level === 0) return 'Each AXE damage dealt to opponent heals you.';
-        return `Each AXE damage dealt to opponent heals you for ${level} HP.`;
+        return `+${level}HP per damage`;
     }
 
     execute(owner: IPlayer, _opponent: IPlayer, level: number) {

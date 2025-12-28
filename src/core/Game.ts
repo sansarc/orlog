@@ -11,9 +11,10 @@ export class Game {
     readonly player1 = new Player("Player 1");
     readonly player2 = new Player("Player 2");
 
-    private _currentPlayer: Player;
-    private _firstPlayer: Player;
+    private _currentPlayer: IPlayer;
+    private _firstPlayer: IPlayer;
     private _phase: IGamePhase;
+    private _currentRound = 1;
 
     static readonly Notifier: INotifier;
 
@@ -21,8 +22,6 @@ export class Game {
         this._firstPlayer = Math.random() < 0.5 ? this.player1 : this.player2;
         this._currentPlayer = this._firstPlayer;
         this._phase = new RollPhase(this);
-
-        this.player1.addToken(10);
     }
 
     // ----- USER ACTIONS -----
@@ -43,6 +42,23 @@ export class Game {
         this._phase.handleConfirmClick?.();
     }
 
+    resetGame(): void {
+        this.player1.reset();
+        this.player2.reset();
+
+        this._phase = new RollPhase(this);
+        this._currentRound = 0;
+        this._firstPlayer = Math.random() < 0.5 ? this.player1 : this.player2;
+    }
+
+    nextRound(): void {
+        this._currentRound++;
+    }
+
+    swapFirstPlayer(): void {
+        this._firstPlayer = this.getOtherPlayer(this._firstPlayer);
+    }
+
     // ----- HELPERS -----
 
     getOtherPlayer(p: IPlayer): IPlayer {
@@ -56,7 +72,7 @@ export class Game {
     }
 
     set currentPlayer(value: IPlayer) {
-        this._currentPlayer = value as Player;
+        this._currentPlayer = value;
     }
 
     get firstPlayer(): IPlayer {
@@ -73,6 +89,10 @@ export class Game {
 
     set phase(value: IGamePhase) {
         this._phase = value;
+    }
+
+    get currentRound(): number {
+        return this._currentRound;
     }
 }
 
