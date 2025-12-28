@@ -1,6 +1,9 @@
 # Orlog - Web Implementation
+[![Deploy with Vercel](https://vercel.com/button)](https://orlog-game.vercel.app)
 
-> A web-based recreation of the **Orlog** dice game from *Assassin's Creed Valhalla*. This project implements the core rules, combat logic, and God Favor mechanics in a browser environment, currently supporting local PvP (hotseat) gameplay.
+🔗 [**Demo Link**](https://orlog-game.vercel.app/)
+
+A web-based recreation of the **Orlog** dice game from *Assassin's Creed Valhalla*. This project implements the core rules, combat logic, and God Favor mechanics in a browser environment, currently supporting local PvP (hotseat) gameplay.
 
 ### 📸 Screenshots
 
@@ -62,7 +65,7 @@ The game flow is controlled by a central `Game` class that transitions between d
 1.  **Clone the repository**
     ```bash
     git clone https://github.com/sansarc/orlog.git
-    cd orlog-game
+    cd orlog
     ```
 
 2.  **Install dependencies**
@@ -79,6 +82,14 @@ The game flow is controlled by a central `Game` class that transitions between d
     ```bash
     npm test
     ```
+
+## 🚀 Deployment & CI/CD
+
+The project is deployed via **Vercel** with a strict CI pipeline:
+1.  **Push:** Code is pushed to the `main` branch.
+2.  **Test:** Vercel triggers `npm run test:ci` (Vitest).
+3.  **Build:** If tests pass, the app is built and deployed to production.
+4.  **Reject:** If any test fails, the deployment is cancelled to ensure stability.
 
 ---
 ### ⚖️ Legal & Credits
