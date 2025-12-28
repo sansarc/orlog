@@ -806,7 +806,7 @@ function wait(ms: number) {
 
 /* --- LAYOUT GRID --- */
 .game-layout {
-  display: grid;
+  display: flex;
   grid-template-columns: 1fr 380px; /* Fixed sidebar width */
   height: 100%;
   width: 100%;
