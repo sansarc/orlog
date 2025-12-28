@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Toast from "primevue/toast"
 import GameBoard from "./views/GameBoard.vue";
-import { Analytics } from "@vercel/analytics/next"
+import { inject } from "@vercel/analytics"
+
+inject()
 </script>
 
 <template>
-  <Analytics />
   <Toast position="bottom-right" class="toast-center"/>
   <GameBoard/>
 </template>
