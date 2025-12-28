@@ -2,10 +2,6 @@ import type {Player} from "../Player.ts";
 import type { IGodFavor } from "./IGodFavor.ts";
 import {Game} from "../Game.ts";
 
-
-/**
- * Thor's Strike is a God Favor that deals direct damage to the opponent.
- */
 export class ThorsStrike implements IGodFavor {
     readonly name = "Thor's Strike";
     readonly totemImgPath = "/icons/thors-strike.png";

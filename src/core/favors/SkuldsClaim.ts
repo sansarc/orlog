@@ -23,7 +23,7 @@ export class SkuldsClaim implements IGodFavor {
 
     getDescription(level: number): string {
         if (level === 0) return "Destroy opponent's ⌘ for each die that rolled ARROW." ;
-        return '-' + this.getTokensToRemove(level) + '⌘ per ARROW.';
+        return '-' + this.getTokensToRemove(level) + '⌘ per die';
     }
 
     execute(owner: IPlayer, opponent: IPlayer, level: number) {

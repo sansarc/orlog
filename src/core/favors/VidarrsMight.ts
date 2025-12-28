@@ -19,8 +19,8 @@ export class VidarrsMight implements IGodFavor {
     }
 
     getDescription(level: number): string {
-        if (level === 0) return 'Remove Helmets from the opponent.'
-        return `Remove ${level * 2} helmets`;
+        if (level === 0) return 'Remove HELMETS from the opponent.'
+        return `-${level * 2} HELMETS`;
     }
 
     execute(_owner: Player, opponent: Player, level: number) {

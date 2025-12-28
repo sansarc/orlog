@@ -25,7 +25,7 @@ export class FreyrsGift implements IGodFavor {
 
     getDescription(level: number): string {
         if (level === 0) return 'Add to the total of whichever die face is in majority.'
-        return 'Add ' + this.getDieToAdd(level) + ' to the total of whichever die face is in majority.';
+        return '+' + this.getDieToAdd(level);
     }
 
     execute(owner: IPlayer, _opponent: IPlayer, level: number) {

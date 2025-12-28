@@ -11,15 +11,15 @@ export class SkadisHunt implements IGodFavor {
         switch (level) {
             case 1: return 6;
             case 2: return 10;
-            case 3: return 12;
+            case 3: return 14;
             default:
                 throw new Error("Invalid level: " + level);
         }
     }
 
     getDescription(level: number): string {
-        if (level === 0) return 'Add ARROW to each die that rolled ARROW.';
-        return `Add +${level} per each ARROW.`;
+        if (level === 0) return 'Add ARROWS to each die that rolled ARROW.';
+        return `+${level} ARROWS per die`;
     }
 
     execute(owner: IPlayer, _opponent: IPlayer, level: number) {

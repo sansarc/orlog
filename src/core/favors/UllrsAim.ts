@@ -23,8 +23,8 @@ export class UllrsAim implements IGodFavor {
     }
 
     getDescription(level: number): string {
-        if (level === 0) return 'Your arrows ignore the opponent\'s shields.';
-        return `${this.getShieldsToRemove(level)} arrows ignore shields.`;
+        if (level === 0) return 'Your ARROWS ignore the opponent\'s SHIELDS.';
+        return `${this.getShieldsToRemove(level)} ARROWS ignore SHIELDS.`;
     }
 
     execute(_owner: IPlayer, opponent: IPlayer, level: number) {

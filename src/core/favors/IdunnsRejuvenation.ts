@@ -2,9 +2,6 @@ import type {IGodFavor} from "./IGodFavor.ts";
 import type {Player} from "../Player.ts";
 import {Game} from "../Game.ts";
 
-/**
- * Iðunn's Rejuvenation is a God Favor that heals the owner.
- */
 export class IdunnsRejuvenation implements IGodFavor {
     readonly name = "Iðunn's Rejuvenation";
     readonly totemImgPath = "/icons/idunns-rejuvenation.png";

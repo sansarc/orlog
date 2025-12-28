@@ -24,17 +24,15 @@ export class FriggsSight implements IGodFavor {
 
     getDescription(level: number): string {
         if (level === 0) return 'Reroll any of your or your opponent\'s dice.'
-        else return `Reroll ` + this.getSelectionLimit(level) + ' dice.';
+        else return `Reroll ` + this.getSelectionLimit(level) + ' dice';
     }
 
-    execute(_owner: IPlayer, _opponent: IPlayer, _level: number, selection: IDie[] = []): void {
-        selection.forEach((die, index) => {
-            console.log(`Rerolling die ${index}: ${die.face} (Resolved: ${die.isResolved})`);
-
+    execute(_owner: IPlayer, _opponent: IPlayer, _level: number, targets: IDie[]): void {
+        targets.forEach(die => {
             die.roll();
             die.isResolved = false;
         });
 
-        Game.Notifier.info(`Frigg rerolls ${selection.length} dice.`);
+        Game.Notifier.info(`Frigg rerolls ${targets.length} dice.`);
     }
 }

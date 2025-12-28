@@ -29,7 +29,7 @@ export class BrunhildsFury implements IGodFavor {
 
     getDescription(level: number): string {
         if (level === 0) return 'Multiply AXES rounded up.'
-        else return `Multiply AXES damage by ${this.getMultiplier(level)}.`;
+        else return `AXES x${this.getMultiplier(level)}`;
     }
 
     execute(owner: IPlayer, _opponent: IPlayer, level: number): void {

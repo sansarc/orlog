@@ -11,6 +11,14 @@ import {HelsGrip} from "./HelsGrip.ts";
 import {SkadisHunt} from "./SkadisHunt.ts";
 import {SkuldsClaim} from "./SkuldsClaim.ts";
 import {FriggsSight} from "./FriggsSight.ts";
+import {FreyjasPlenty} from "./FreyjasPlenty.ts";
+import {LokisTrick} from "./LokisTrick.ts";
+import {OdinsSacrifice} from "./OdinsSacrifice.ts";
+import {TyrsPledge} from "./TyrsPledge.ts";
+import {MimirsWisdom} from "./MimirsWisdom.ts";
+import {BragisVerve} from "./BragisVerve.ts";
+import {VarsBond} from "./VarsBond.ts";
+import {ThrymrsTheft} from "./ThrymrsTheft.ts";
 
 export const AVAILABLE_GODS : IGodFavor[] = [
     new ThorsStrike(),
@@ -24,6 +32,13 @@ export const AVAILABLE_GODS : IGodFavor[] = [
     new HelsGrip(),
     new SkadisHunt(),
     new SkuldsClaim(),
-    new FriggsSight()
-
+    new FriggsSight(),
+    new LokisTrick(),
+    new FreyjasPlenty(),
+    new MimirsWisdom(),
+    new BragisVerve(),
+    new OdinsSacrifice(),
+    new VarsBond(),
+    new ThrymrsTheft(),
+    new TyrsPledge()
 ];
