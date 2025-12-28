@@ -7,7 +7,7 @@ export class Arrow implements DieAction {
         let damageToDeal = die.damage;
 
         while (damageToDeal > 0) {
-            const targetShield = opponent.getUnresolvedShields();
+            const targetShield = opponent.getUnresolvedShield();
 
             if (targetShield)
                 targetShield.takeHit();
@@ -16,7 +16,7 @@ export class Arrow implements DieAction {
 
             damageToDeal--;
 
-            console.log(`Axe die deals 1 damage to ${targetShield ? 'Helmet' : 'opponent'} (health left: ${targetShield ? targetShield.defenseHealth : opponent.health}).`);
+            console.log(`ARROW die deals 1 damage to ${targetShield ? 'SHIELD' : 'opponent'} (health left: ${targetShield ? targetShield.defenseHealth : opponent.health}).`);
         }
 
         die.isResolved = true;

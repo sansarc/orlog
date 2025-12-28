@@ -13,11 +13,11 @@ export class Hand implements DieAction {
 
         while (tokensToSteal > 0) {
             if (opponent.tokens > 0) {
-                console.log(`Hand die activated: ${owner.name} steals a token from ${opponent.name}`);
+                console.log(`HAND die activated: ${owner.name} steals a token from ${opponent.name}`);
                 opponent.removeToken();
                 owner.addToken();
             } else {
-                console.log(`Hand die deactivated: ${opponent.name} has no tokens left to steal.`);
+                console.log(`HAND die deactivated: ${opponent.name} has no tokens left to steal.`);
                 die.damage = 0;
                 break;
             }

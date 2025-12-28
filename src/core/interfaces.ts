@@ -5,11 +5,12 @@ import type { FavorSelection } from "./Player";
 export type HitType = 'DEFENSE' | 'PLAYER' | null;
 
 export interface IDie {
+    face: DieFace;
     isKept: boolean;
     isLocked: boolean;
     hasToken: boolean;
     isResolved: boolean;
-    readonly face: DieFace;
+    readonly isTemporary: boolean;
     readonly defenseHealth: number;
     damage: number;
     hitType: HitType;
@@ -25,7 +26,8 @@ export interface IPlayer {
     name: string;
     health: number;
     tokens: number;
-    
+    damageTakenThisRound: number;
+
     dice: IDie[]; 
     
     favors: IGodFavor[];
@@ -34,6 +36,8 @@ export interface IPlayer {
     rollDice(): void;
     keepAllDice(): void;
     clearDice(): void;
+    getUnresolvedShield(): IDie | undefined;
+    getUnresolvedHelmet(): IDie | undefined;
     damage(hp?: number): void;
     heal(hp?: number): void;
     isDead(): boolean;

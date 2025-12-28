@@ -7,7 +7,7 @@ export class Axe implements DieAction {
        let damageToDeal = die.damage;
 
        while (damageToDeal > 0) {
-           const targetHelmet = opponent.getUnresolvedHelmets();
+           const targetHelmet = opponent.getUnresolvedHelmet();
 
            if (targetHelmet) {
                targetHelmet.takeHit();
@@ -22,7 +22,7 @@ export class Axe implements DieAction {
 
            damageToDeal--;
 
-           console.log(`Axe die deals 1 damage to ${targetHelmet ? 'Helmet' : 'opponent'} (health left: ${targetHelmet ? targetHelmet.defenseHealth : opponent.health}).`);
+           console.log(`AXE die deals 1 damage to ${targetHelmet ? 'HELMET' : 'opponent'} (health left: ${targetHelmet ? targetHelmet.defenseHealth : opponent.health}).`);
        }
 
        die.isResolved = true;

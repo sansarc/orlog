@@ -1,7 +1,7 @@
 import { Die } from "./Die.ts"
 import type { IGodFavor } from "./favors/IGodFavor.ts";
 import {DieFace} from "./dice/DieFace.ts";
-import type {IPlayer} from "./interfaces.ts";
+import type {IDie, IPlayer} from "./interfaces.ts";
 
 export type FavorSelection = {
     favor: IGodFavor,
@@ -12,8 +12,9 @@ export class Player implements IPlayer {
     name: string;
 
     private _health = 15;
+    private _damageTakenThisRound = 0;
     private _tokens = 0;
-    private readonly _dice: Die[] = [];
+    private _dice: Die[] = [];
     private _favors: IGodFavor[] = [];
     private _selectedFavor : FavorSelection = null;
 
@@ -41,16 +42,23 @@ export class Player implements IPlayer {
     }
 
     clearDice(): void {
+        this._dice = this._dice.filter(die => !die.isTemporary);
+        this._damageTakenThisRound = 0; // resetting at the end of round
+
         for (const die of this._dice)
             die.clear();
     }
 
     damage(hp: number = 1): void {
         this._health -= hp;
+        this._damageTakenThisRound += hp;
+
+        if (this._health < 0) this._health = 0;
     }
 
     heal(hp: number): void {
         this._health += hp;
+        if (this._health > 15) this._health = 15;
     }
 
     isDead(): boolean {
@@ -58,25 +66,31 @@ export class Player implements IPlayer {
     }
 
     addToken(tokens: number = 1): void {
-        console.log(`${this.name} adding ${tokens} tokens. (Current: ${this._tokens} -> ${this._tokens + tokens})`);
         this._tokens += tokens;
     }
 
     removeToken(tokens: number = 1): void {
-        console.log(`${this.name} removing ${tokens} tokens. (Current: ${this._tokens} -> ${Math.max(0, this._tokens - tokens)})`);
         this._tokens = Math.max(0, this._tokens - tokens); // prevent negative tokens
     }
 
-    getUnresolvedShields(): Die | undefined {
+    getUnresolvedShield(): IDie | undefined {
         return this._dice.find(die =>
             die.face === DieFace.SHIELD && !die.isResolved
         );
     }
 
-    getUnresolvedHelmets(): Die | undefined {
+    getUnresolvedHelmet(): IDie | undefined {
         return this._dice.find(die =>
             die.face === DieFace.HELMET && !die.isResolved
         );
+    }
+
+    reset(): void {
+        this._health = 15;
+        this._tokens = 0;
+        this.clearDice();
+        this._damageTakenThisRound = 0;
+        this._favors = [];
     }
 
     toString(): string {
@@ -90,27 +104,21 @@ export class Player implements IPlayer {
         this._favors = favors;
     }
 
-    set selectedFavor(favor: FavorSelection) {
-        this._selectedFavor = favor;
-    }
+    set selectedFavor(favor: FavorSelection) { this._selectedFavor = favor; }
 
-    get favors() : IGodFavor[] {
-        return this._favors;
-    }
+    get favors(): IGodFavor[] { return this._favors; }
 
-    get selectedFavor() : FavorSelection {
-        return this._selectedFavor;
-    }
+    get selectedFavor(): FavorSelection { return this._selectedFavor; }
 
-    get health(): number {
-        return this._health;
-    }
+    get health(): number { return this._health; }
 
-    get tokens(): number {
-        return this._tokens;
-    }
+    set health(hp: number) { this._health = Math.min(15, hp); }
 
-    get dice(): Die[] {
-        return this._dice;
-    }
+    get damageTakenThisRound(): number { return this._damageTakenThisRound; }
+
+    get tokens(): number { return this._tokens; }
+
+    set tokens(tokens: number) { this._tokens = tokens; }
+
+    get dice(): Die[] { return this._dice; }
 }
