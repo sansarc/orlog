@@ -1,5 +1,7 @@
 # Orlog - Web Implementation
-[![Deploy with Vercel](https://vercel.com/button)](https://orlog-game.vercel.app)
+[![Vercel](https://therealsujitk-vercel-badge.vercel.app/?app=orlog-game)](https://orlog-game.vercel.app)
+![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat&logo=vuedotjs&logoColor=%234FC08D)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white)
 
 🔗 [**Demo Link**](https://orlog-game.vercel.app/)
 
