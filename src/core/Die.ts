@@ -11,11 +11,16 @@ export class Die implements IDie {
     private _isKept = false;
     private _isLocked = false;
     private _hasToken = false;
-    private _isResolved = false
+    private _isResolved = false;
+    private readonly _isTemporary: boolean;
 
     private _defenseHealth = 1; // Used to track how many hits a shield or helmet can still absorb
     private _damage = 1; // Used to track damage that can be dealt by an axe or an arrow
     private _hitType: HitType = null;
+
+    constructor(isTemporary: boolean = false) {
+        this._isTemporary = isTemporary;
+    }
 
     roll(): void {
         this._face = this.assign(Math.floor(Math.random() * 6));
@@ -59,9 +64,9 @@ export class Die implements IDie {
         return true; // Still holds
     }
 
-    addDefense(amount: number): void {
-        this._defenseHealth += amount;
-    }
+    get isTemporary(): boolean { return this._isTemporary; }
+
+    addDefense(amount: number): void { this._defenseHealth += amount; }
 
     get hitType(): HitType { return this._hitType; }
 
@@ -73,36 +78,26 @@ export class Die implements IDie {
 
     get defenseHealth(): number { return this._defenseHealth; }
 
-    get isResolved(): boolean {
-        return this._isResolved;
+    get isResolved(): boolean { return this._isResolved; }
+
+    set isResolved(value: boolean) { this._isResolved = value; }
+
+    get isLocked(): boolean { return this._isLocked; }
+
+    set isLocked(value: boolean) { this._isLocked = value; }
+
+    get face(): DieFace { return this._face; }
+
+    set face(value: DieFace) {
+        this._face = value;
+        this._behavior = DieActionFactory.getBehavior(value);
     }
 
-    set isResolved(value: boolean) {
-        this._isResolved = value;
-    }
+    get isKept(): boolean { return this._isKept; }
 
-    get isLocked(): boolean {
-        return this._isLocked;
-    }
+    set isKept(value: boolean) { this._isKept = value; }
 
-    set isLocked(value: boolean) {
-        this._isLocked = value;
-    }
+    get hasToken(): boolean { return this._hasToken; }
 
-    get face(): DieFace {
-        return this._face;
-    }
-
-    get isKept(): boolean {
-        return this._isKept;
-    }
-
-    set isKept(value: boolean) {
-        this._isKept = value;
-    }
-
-    get hasToken(): boolean {
-        return this._hasToken;
-    }
 
 }
