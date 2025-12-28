@@ -16,7 +16,7 @@ export class Game {
     private _phase: IGamePhase;
     private _currentRound = 1;
 
-    static readonly Notifier: INotifier;
+    static Notifier: INotifier;
 
     constructor() {
         this._firstPlayer = Math.random() < 0.5 ? this.player1 : this.player2;
