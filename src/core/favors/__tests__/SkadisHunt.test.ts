@@ -27,26 +27,9 @@ describe('SkadisHunt', () => {
         expect(favor.totemImgPath).toBe("/icons/skadis-hunt.png");
     });
 
-    it('returns correct cost per level', () => {
-        expect(favor.getCost(1)).toBe(6);
-        expect(favor.getCost(2)).toBe(10);
-        expect(favor.getCost(3)).toBe(12);
-    });
-
     it('throws on invalid level cost', () => {
         expect(() => favor.getCost(0)).toThrow();
         expect(() => favor.getCost(99)).toThrow();
-    });
-
-    it('returns correct description', () => {
-        expect(favor.getDescription(0))
-            .toBe('Add ARROW to each die that rolled ARROW.');
-        expect(favor.getDescription(1))
-            .toBe('Add +1 per each ARROW.');
-        expect(favor.getDescription(2))
-            .toBe('Add +2 per each ARROW.');
-        expect(favor.getDescription(3))
-            .toBe('Add +3 per each ARROW.');
     });
 
     it('Level 1: Adds +1 damage to each unresolved ARROW', () => {

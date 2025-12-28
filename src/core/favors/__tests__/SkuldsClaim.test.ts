@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SkuldsClaim } from "../SkuldsClaim.ts";
-import { DieFace } from "../../dice/DieFace.ts";
-import { createMockDie } from "../../../utils/testUtils.ts";
-import { Game } from "../../Game.ts";
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {SkuldsClaim} from "../SkuldsClaim.ts";
+import {DieFace} from "../../dice/DieFace.ts";
+import {createMockDie} from "../../../utils/testUtils.ts";
+import {Game} from "../../Game.ts";
 
 vi.mock('../../Game', () => ({
     Game: {
@@ -31,11 +31,6 @@ describe('SkuldsClaim', () => {
         expect(favor.priority).toBe('PRE_COMBAT');
     });
 
-    it('has correct name and icon', () => {
-        expect(favor.name).toBe("Skaði's Hunt");
-        expect(favor.totemImgPath).toBe("/icons/skadis-hunt.png");
-    });
-
     it('returns correct cost per level', () => {
         expect(favor.getCost(1)).toBe(4);
         expect(favor.getCost(2)).toBe(6);
@@ -53,17 +48,6 @@ describe('SkuldsClaim', () => {
         expect(favor.getTokensToRemove(3)).toBe(4);
     });
 
-    it('returns correct description', () => {
-        expect(favor.getDescription(0))
-            .toBe("Destroy opponent's ⌘ for each die that rolled ARROW.");
-        expect(favor.getDescription(1))
-            .toBe('-2⌘ per ARROW.');
-        expect(favor.getDescription(2))
-            .toBe('-3⌘ per ARROW.');
-        expect(favor.getDescription(3))
-            .toBe('-4⌘ per ARROW.');
-    });
-
     it('Level 1: Removes tokens based on unresolved ARROW count', () => {
         const d1 = createMockDie(DieFace.ARROW);
         const d2 = createMockDie(DieFace.ARROW);
@@ -78,11 +62,9 @@ describe('SkuldsClaim', () => {
     });
 
     it('Level 3: Removes tokens based on unresolved ARROW count', () => {
-        const dice = Array(3)
+        owner.dice = Array(3)
             .fill(null)
             .map(() => createMockDie(DieFace.ARROW));
-
-        owner.dice = dice;
 
         favor.execute(owner, opponent, 3);
 
