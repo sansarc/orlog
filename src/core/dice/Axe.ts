@@ -21,8 +21,6 @@ export class Axe implements DieAction {
            }
 
            damageToDeal--;
-
-           console.log(`AXE die deals 1 damage to ${targetHelmet ? 'HELMET' : 'opponent'} (health left: ${targetHelmet ? targetHelmet.defenseHealth : opponent.health}).`);
        }
 
        die.isResolved = true;
