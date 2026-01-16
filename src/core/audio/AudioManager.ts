@@ -5,12 +5,45 @@ export class AudioManager {
     private _isMuted = false;
     private _volume = 0.3; // default 30% volume
 
-    private constructor() {}
+    private readonly STORAGE_KEY_MUTE = 'orlog_audio_muted';
+    private readonly STORAGE_KEY_VOLUME = 'orlog_audio_volume';
+
+    private constructor() {
+        this.loadState();
+    }
 
     static get instance() {
         if (!AudioManager._instance)
             AudioManager._instance = new AudioManager();
         return AudioManager._instance;
+    }
+
+    private saveState() {
+        try {
+            localStorage.setItem(this.STORAGE_KEY_MUTE, JSON.stringify(this._isMuted));
+            localStorage.setItem(this.STORAGE_KEY_VOLUME, this._volume.toString());
+        } catch (e) {
+            console.warn("Could not save audio settings to localStorage", e);
+        }
+    }
+
+    private loadState() {
+        try {
+            const storedMute = localStorage.getItem(this.STORAGE_KEY_MUTE);
+            const storedVolume = localStorage.getItem(this.STORAGE_KEY_VOLUME);
+
+            if (storedMute !== null)
+                this._isMuted = JSON.parse(storedMute);
+
+            if (storedVolume !== null) {
+                const vol = Number.parseFloat(storedVolume);
+                if (!Number.isNaN(vol) && vol >= 0 && vol <= 1) {
+                    this._volume = vol;
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load audio settings", e);
+        }
     }
 
     // BACKGROUND MUSIC
@@ -71,12 +104,15 @@ export class AudioManager {
         if (this._bgm)
             this._bgm.volume = this._isMuted ? 0 : this._volume;
 
+        this.saveState();
         return this._isMuted;
     }
 
     setMasterVolume(volume: number) {
         this._volume = Math.max(0, Math.min(1, volume));
         this.updateBGMVolume();
+
+        this.saveState();
     }
 
     private updateBGMVolume() {
